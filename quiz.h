@@ -2,33 +2,29 @@
 #define QUIZ_H
 
 #include <stdlib.h>
-#include <ctype.h>
 #include <string.h>
 #include <stdio.h>
 
-/* struct definitions */
-
 typedef struct {
+    size_t count;
+    size_t capacity;
     char** options;
-    size_t count;
-    size_t capacity;
-} PROMPT;
+} PROMPT; /* holds information for an individual question prompt */
 
 typedef struct {
-    PROMPT** ques;
     size_t count;
     size_t capacity;
-} QUIZ;
+    PROMPT** ques;
+} QUIZ; /* hold information for the entire quiz */
 
-int do_quiz(QUIZ* quiz);
+int do_quiz(QUIZ* quiz); /* displays quiz questions and returns a total */
 
-void show_prompt(const PROMPT* prompt);
+void show_prompt(const PROMPT* prompt); /* displays a question prompt */
 
-void make_quiz(QUIZ* quiz, FILE* file, const char* delim);
-void make_prompt(PROMPT* prompt, const char* str, const char* delim);
+void make_quiz(QUIZ* quiz, FILE* file, const char* delim); /* creates a quiz from a file */
+void make_prompt(PROMPT* prompt, const char* str, const char* delim); /* makes a prompt from a string */
 
-void free_quiz(QUIZ* quiz);
-void free_prompt(PROMPT* quiz);
+void free_quiz(QUIZ* quiz); /* frees a quiz made by make_quiz() */
+void free_prompt(PROMPT* quiz); /* frees a prompt made by make_prompt() */
 
-#endif
-
+#endif /* QUIZ_H */

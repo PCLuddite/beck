@@ -30,20 +30,19 @@ static size_t find_end(const char* str)
 
 int do_quiz(QUIZ* quiz)
 {
-    int curr = 0;
-    int total = 0;
+    int curr = 0,
+        total = 0;
     while(curr < quiz->count) {
-        int num;
-        char opt;
+        int choice, charchoice;
         printf("Question %i:\n", (curr + 1));
         show_prompt(quiz->ques[curr]);
         fputs("Answer: ", stdout);
-        scanf("%c%*c", &opt);
+        charchoice = get_single();
         fputs("\n", stdout);
-        num = opt - '0';
-        if (num >= 0 && num < quiz->ques[curr]->count) {
+        choice = charchoice - '0';
+        if (choice >= 0 && choice < quiz->ques[curr]->count) {
             ++curr;
-            total += num;
+            total += choice;
         }
     }
     return total;

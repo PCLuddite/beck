@@ -46,7 +46,7 @@ FILE* open_beck(const char* arg0)
 
 bool should_begin(void)
 {
-    char yn;
+    int yn;
     puts("Beck's Depression Inventory\n");
     puts("This quiz can help determine your level of depression.");
     puts("There are 20 questions. Enter the number corresponding to how");
@@ -54,8 +54,7 @@ bool should_begin(void)
     puts("enter the larger number.");
     do {
         fputs("Continue? [Y/N] ", stdout);
-        scanf("%c%*c", &yn);
-        yn = toupper(yn);
+        yn = toupper(get_single());
         fputs("\n", stdout);
         if (yn == 'N') {
             return false;
@@ -70,7 +69,7 @@ void get_suggestion(int total)
         puts("Your depression seems to be extreme. You should seek medical help immediately.");
     }
     else if (total > 30) {
-        puts("You may have severe depression.");
+        puts("Your depression is severe.");
     }
     else if (total > 20) {
         puts("You suffer from moderate depression.");
@@ -81,12 +80,28 @@ void get_suggestion(int total)
     else if (total > 10) {
         puts("You may suffer from mild mood disturbances.");
     }
-    else if (total < 1) {
-        puts("You do not seem to have any mood disturbance.");
-    }
-    else {
+    else if (total > 1) {
         puts("These ups and downs are considered normal.");
     }
+    else {
+        puts("You do not seem to have any mood disturbance.");
+    }
+}
+
+int get_single(void)
+{
+    int count = 0;
+    int c = getchar();
+
+    if (c == '\n') {
+        return c;
+    }
+
+    while(getchar() != '\n') {
+        ++count;
+    }
+
+    return count == 0 ? c : 0;
 }
 
 void* erealloc(void* ptr, size_t count)
@@ -132,11 +147,11 @@ size_t GetQuizPath(const char* arg0, char* buff, size_t buff_size)
 
 	for(index = size - 1; index > 0; --index) { /* go backwards until we reach a directory separator */
 		if (temp_path[index] == SEPARATOR[0]) {
-	        	temp_path[index + 1] = '\0'; /* set where we want the string to end (one after the separator) */
+	        temp_path[index + 1] = '\0'; /* set where we want the string to end (one after the separator) */
 			strcpy(buff, temp_path); /* copy the temp path to the buff */
 			strcat(buff, "beck.txt"); /* append the file we're looking for */
 			free(temp_path);
-			return strlen(buff);
+			return strlen(buff); /* return path length */
 		}
 	}
 
@@ -145,5 +160,5 @@ size_t GetQuizPath(const char* arg0, char* buff, size_t buff_size)
 	strcat(buff, "beck.txt"); /* fail safe, hopefully it's in the startup path */
 
 	free(temp_path);
-	return strlen(buff);
+	return strlen(buff); /* return path length */
 }

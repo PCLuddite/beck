@@ -3,6 +3,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <ctype.h>
 
 /* directory separators */
 #if defined _WIN32 || _MSDOS
@@ -31,20 +32,22 @@ typedef enum {
 #endif
 
 #ifndef MAX_PATH
-#define MAX_PATH 256
+#define MAX_PATH 256 /* TODO: determine actual max path on linux */
 #endif
 
 #define PROMPT_DELIM "|"
 
-void get_suggestion(int total);
-bool should_begin(void);
+void get_suggestion(int total); /* gets a suggested level of depression based on score */
+bool should_begin(void); /* prompts user to begin quiz */
 
-FILE* open_beck(const char* arg0);
-size_t GetQuizPath(const char* arg0, char* buff, size_t buff_size);
+FILE* open_beck(const char* arg0); /* opens beck.txt and returns file stream */
+size_t GetQuizPath(const char* arg0, char* buff, size_t buff_size); /* gets the path of beck.txt */
 
-void* emalloc(size_t count);
-void* erealloc(void* ptr, size_t count);
+void* emalloc(size_t count); /* malloc() that prints an error and exits if malloc() fails */
+void* erealloc(void* ptr, size_t count); /* realloc() that prints an error and exits if realloc() fails */
+
+int get_single(void); /* gets a single character from STDIN, if more than one character is enter, 0 is returned */
 
 
-#endif
+#endif /* BECK_H */
 
