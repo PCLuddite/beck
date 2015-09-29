@@ -1,7 +1,8 @@
 #include "beck.h"
 #include "quiz.h"
 
-int main(int argc, char* argv[]) {
+int main(int argc, char* argv[])
+{
     FILE* file;
     int total;
     QUIZ quiz;
@@ -36,7 +37,8 @@ int main(int argc, char* argv[]) {
     return 0;
 }
 
-FILE* open_beck(const char* arg0) {
+FILE* open_beck(const char* arg0)
+{
     char path[MAX_PATH];
     GetQuizPath(arg0, path, MAX_PATH);
     return fopen(path, "r");

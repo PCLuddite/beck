@@ -28,7 +28,8 @@ static size_t find_end(const char* str)
     return end;
 }
 
-int do_quiz(QUIZ* quiz) {
+int do_quiz(QUIZ* quiz)
+{
     int curr = 0;
     int total = 0;
     while(curr < quiz->count) {
@@ -48,7 +49,8 @@ int do_quiz(QUIZ* quiz) {
     return total;
 }
 
-void show_prompt(const PROMPT* prompt) {
+void show_prompt(const PROMPT* prompt)
+{
     int i = 0;
     for(; i < prompt->count; ++i) {
         printf("%i  %s\n", i, prompt->options[i]);
