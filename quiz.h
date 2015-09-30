@@ -25,6 +25,5 @@ void make_quiz(QUIZ* quiz, FILE* file, const char* delim); /* creates a quiz fro
 void make_prompt(PROMPT* prompt, const char* str, const char* delim); /* makes a prompt from a string */
 
 void free_quiz(QUIZ* quiz); /* frees a quiz made by make_quiz() */
-void free_prompt(PROMPT* quiz); /* frees a prompt made by make_prompt() */
 
 #endif /* QUIZ_H */

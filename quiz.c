@@ -59,13 +59,28 @@ void show_prompt(const PROMPT* prompt)
 void make_quiz(QUIZ* quiz, FILE* file, const char* delim)
 {
     static const int INITIAL_CAPACITY = 25;
-    char full[1024];
-    quiz->ques = emalloc(INITIAL_CAPACITY * sizeof*(quiz->ques));
-    quiz->capacity = INITIAL_CAPACITY;
+    static const int BUFFER_SIZE = 1024;
+
+    char full[BUFFER_SIZE]; /* buffer to hold a line of text */
+    char* prompt_mem; /* pointer to memory allocated for prompts */
+    int num_prompts = 0; /* the number of prompts */
+    int curr = 0;
+
+    /* count the lines of the file to determine number of prompts */
+    while(fgets(full, BUFFER_SIZE, file) != NULL) {
+        ++num_prompts;
+    }
+
+    fseek(file, SEEK_SET, 0); /* reset the stream */
+
+    prompt_mem = emalloc(num_prompts * sizeof(PROMPT)); /* allocate memory for prompts */
+
+    quiz->ques = emalloc(INITIAL_CAPACITY * sizeof*(quiz->ques)); /* allocate memory for prompt arrays*/
+    quiz->capacity = INITIAL_CAPACITY; /* set initial capacity */
     quiz->count = 0;
 
-    while(fgets(full, 1024, file) != NULL) {
-        PROMPT* prompt = emalloc(sizeof*prompt);
+    while(fgets(full, BUFFER_SIZE, file) != NULL) {
+        PROMPT* prompt = prompt_mem + (curr++ * sizeof*prompt); /* find memory for prompt */
         make_prompt(prompt, full, delim);
         quiz_add(quiz, prompt);
     }
@@ -98,13 +113,8 @@ void free_quiz(QUIZ* quiz)
 {
     size_t i = 0;
     for(; i < quiz->count; ++i) {
-        free_prompt(quiz->ques[i]);
+        free(p->options);
     }
+    free(quiz->ques[0]);
     free(quiz->ques);
-}
-
-void free_prompt(PROMPT* p)
-{
-    free(p->options);
-    free(p);
 }
