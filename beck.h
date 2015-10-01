@@ -48,6 +48,5 @@ void* erealloc(void* ptr, size_t count); /* realloc() that prints an error and e
 
 int get_single(void); /* gets a single character from STDIN, if more than one character is enter, 0 is returned */
 
-
 #endif /* BECK_H */
 

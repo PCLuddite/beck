@@ -30,7 +30,7 @@ static size_t find_end(const char* str)
 
 int do_quiz(QUIZ* quiz)
 {
-    int curr = 0,
+    int curr  = 0,
         total = 0;
     while(curr < quiz->count) {
         int choice, charchoice;
@@ -59,28 +59,28 @@ void show_prompt(const PROMPT* prompt)
 void make_quiz(QUIZ* quiz, FILE* file, const char* delim)
 {
     static const int INITIAL_CAPACITY = 25;
-    static const int BUFFER_SIZE = 1024;
 
-    char full[BUFFER_SIZE]; /* buffer to hold a line of text */
+    char full[1024]; /* buffer to hold a line of text */
     char* prompt_mem; /* pointer to memory allocated for prompts */
     int num_prompts = 0; /* the number of prompts */
     int curr = 0;
 
     /* count the lines of the file to determine number of prompts */
-    while(fgets(full, BUFFER_SIZE, file) != NULL) {
+    while(fgets(full, ARRSIZE(full), file) != NULL) {
         ++num_prompts;
     }
 
     fseek(file, SEEK_SET, 0); /* reset the stream */
 
-    prompt_mem = emalloc(num_prompts * sizeof(PROMPT)); /* allocate memory for prompts */
+    prompt_mem = emalloc(num_prompts * sizeof(PROMPT)); /* allocate memory for prompts in a contiguous block */
 
-    quiz->ques = emalloc(INITIAL_CAPACITY * sizeof*(quiz->ques)); /* allocate memory for prompt arrays*/
-    quiz->capacity = INITIAL_CAPACITY; /* set initial capacity */
+    /* initialize QUIZ struct */
+    quiz->ques = emalloc(INITIAL_CAPACITY * sizeof*(quiz->ques)); /* allocate memory for prompt array */
+    quiz->capacity = INITIAL_CAPACITY;
     quiz->count = 0;
 
-    while(fgets(full, BUFFER_SIZE, file) != NULL) {
-        PROMPT* prompt = prompt_mem + (curr++ * sizeof*prompt); /* find memory for prompt */
+    while(fgets(full, ARRSIZE(full), file) != NULL) {
+        PROMPT* prompt = (PROMPT*)(prompt_mem + (curr++ * sizeof*prompt)); /* find memory for prompt */
         make_prompt(prompt, full, delim);
         quiz_add(quiz, prompt);
     }
@@ -89,20 +89,21 @@ void make_quiz(QUIZ* quiz, FILE* file, const char* delim)
 void make_prompt(PROMPT* prompt, const char* str, const char* delim)
 {
     static const int INITIAL_CAPACITY = 4;
+
     char* opt;
+    size_t count = find_end(str); /* find the end of the string */
+    char* promptstr = emalloc((count + 1) * sizeof*promptstr); /* allocate memory for the string to tokenize */
 
-    size_t count = find_end(str);
-    char* promptstr = emalloc((count + 1) * sizeof*promptstr);
-
-    strncpy(promptstr, str, count);
+    strncpy(promptstr, str, count); /* copy the string to be tokenized string */
     promptstr[count] = '\0';
 
+    /* initialize the PROMPT struct */
     prompt->count = 0;
     prompt->capacity = INITIAL_CAPACITY;
-    prompt->options = emalloc(INITIAL_CAPACITY * sizeof*(prompt->options));
+    prompt->options = emalloc(INITIAL_CAPACITY * sizeof*(prompt->options)); /* allocate memory for tokenized options array */
 
+    /* tokenize the prompt string */
     opt = strtok(promptstr, delim);
-
     while(opt != NULL){
         prompt_add(prompt, opt);
         opt = strtok(NULL, delim);
@@ -113,8 +114,8 @@ void free_quiz(QUIZ* quiz)
 {
     size_t i = 0;
     for(; i < quiz->count; ++i) {
-        free(p->options);
+        free(quiz->ques[i]->options);
     }
-    free(quiz->ques[0]);
+    free(quiz->ques[0]); /* memory for prompt was allocated contiguously, only need to free the start */
     free(quiz->ques);
 }
