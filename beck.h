@@ -35,8 +35,6 @@ typedef enum {
 #define MAX_PATH 256 /* TODO: determine actual max path on linux */
 #endif
 
-#define PROMPT_DELIM "|"
-
 void get_suggestion(int total); /* gets a suggested level of depression based on score */
 bool should_begin(void); /* prompts user to begin quiz */
 

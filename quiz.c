@@ -63,7 +63,7 @@ void make_quiz(QUIZ* quiz, FILE* file, const char* delim)
     char full[1024]; /* buffer to hold a line of text */
     char* prompt_mem; /* pointer to memory allocated for prompts */
     int num_prompts = 0; /* the number of prompts */
-    int curr = 0;
+    int curr = 0; /* keep track of current prompt  */
 
     /* count the lines of the file to determine number of prompts */
     while(fgets(full, ARRSIZE(full), file) != NULL) {
