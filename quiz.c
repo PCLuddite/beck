@@ -1,6 +1,9 @@
 #include "beck.h"
 #include "quiz.h"
 
+/*
+ * adds a prompt to a QUIZ created by init_quiz
+ */
 static void quiz_add(QUIZ* quiz, PROMPT* prompt)
 {
     if (quiz->count == quiz->capacity) {
@@ -10,6 +13,9 @@ static void quiz_add(QUIZ* quiz, PROMPT* prompt)
     quiz->ques[quiz->count++] = prompt;
 }
 
+/*
+ * adds a string to a prompt created by init_prompt
+ */
 static void prompt_add(PROMPT* prompt, char* str)
 {
     if (prompt->count == prompt->capacity) {
@@ -19,6 +25,10 @@ static void prompt_add(PROMPT* prompt, char* str)
     prompt->options[prompt->count++] = str;
 }
 
+/*
+ * finds the end of a string (excluding whitespace)
+ * this compensates for DOS/Windows style line termination on UNIX systems
+ */
 static size_t find_end(const char* str)
 {
     size_t end = strlen(str) - 1;
@@ -28,6 +38,9 @@ static size_t find_end(const char* str)
     return end;
 }
 
+/*
+ * runs through all the QUIZ prompts and returns a quiz total
+ */
 int do_quiz(QUIZ* quiz)
 {
     int curr  = 0,
@@ -48,6 +61,9 @@ int do_quiz(QUIZ* quiz)
     return total;
 }
 
+/*
+ * displays an individual quiz prompt
+ */
 void show_prompt(const PROMPT* prompt)
 {
     int i = 0;
@@ -56,7 +72,11 @@ void show_prompt(const PROMPT* prompt)
     }
 }
 
-void make_quiz(QUIZ* quiz, FILE* file, const char* delim)
+/*
+ * initializes a QUIZ by reading from a file
+ * delim is the prompt delimeter for each line in the file
+ */
+void init_quiz(QUIZ* quiz, FILE* file, const char* delim)
 {
     static const int INITIAL_CAPACITY = 25;
 
@@ -86,7 +106,11 @@ void make_quiz(QUIZ* quiz, FILE* file, const char* delim)
     }
 }
 
-void make_prompt(PROMPT* prompt, const char* str, const char* delim)
+/*
+ * initializes a PROMPT from a given str
+ * delim is the token to split the prompt
+ */
+void init_prompt(PROMPT* prompt, const char* str, const char* delim)
 {
     static const int INITIAL_CAPACITY = 4;
 
@@ -110,7 +134,10 @@ void make_prompt(PROMPT* prompt, const char* str, const char* delim)
     }
 }
 
-void free_quiz(QUIZ* quiz)
+/*
+ * releases all resources held by a QUIZ and all its prompts
+ */
+void close_quiz(QUIZ* quiz)
 {
     size_t i = 0;
     for(; i < quiz->count; ++i) {

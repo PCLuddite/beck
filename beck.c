@@ -30,13 +30,17 @@ int main(int argc, char* argv[])
     total = do_quiz(&quiz);
 
     printf("Total: %i\n", total);
-    get_suggestion(total);
+    print_suggestion(total);
 
     free_quiz(&quiz);
 
     return 0;
 }
 
+/*
+ * opens "beck.txt" for reading and returns the file pointer
+ * this function expects argv[0] which it may or may not use
+ */
 FILE* open_beck(const char* arg0)
 {
     char path[MAX_PATH];
@@ -44,6 +48,10 @@ FILE* open_beck(const char* arg0)
     return fopen(path, "r");
 }
 
+/*
+ * displays the quiz instructions and prompts the user to begin
+ * returns true when the user says "yes" to the prompt, false when "no"
+ */
 bool should_begin(void)
 {
     int yn;
@@ -63,7 +71,10 @@ bool should_begin(void)
     return true;
 }
 
-void get_suggestion(int total)
+/*
+ * prints the suggestion based on quiz score
+ */
+void print_suggestion(int total)
 {
     if (total > 40) {
         puts("Your depression seems to be extreme. You should seek medical help immediately.");
@@ -88,6 +99,10 @@ void get_suggestion(int total)
     }
 }
 
+/*
+ * prompts for a single character, and returns that character
+ * returns 0 when input is invalid
+ */
 int get_single(void)
 {
     int count = 0;
@@ -104,26 +119,35 @@ int get_single(void)
     return count == 0 ? c : 0;
 }
 
+/*
+ * realloc() that exits on failure
+ */
 void* erealloc(void* ptr, size_t count)
 {
     void* newptr = realloc(ptr, count);
     if (newptr == NULL) {
-        puts("Out of memory");
+        puts("Call to realloc() failed");
         exit(1);
     }
     return newptr;
 }
 
+/*
+ * malloc() that exits on failure
+ */
 void* emalloc(size_t count)
 {
     void* ptr = malloc(count);
     if (ptr == NULL) {
-        puts("Out of memory");
+        puts("Call to malloc() failed");
         exit(1);
     }
     return ptr;
 }
 
+/*
+ * stores the path to beck.txt in buff, returns size of path
+ */
 size_t GetQuizPath(const char* arg0, char* buff, size_t buff_size)
 {
 	char* temp_path = emalloc(buff_size);

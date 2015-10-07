@@ -19,13 +19,13 @@ typedef struct {
     PROMPT** ques;
 } QUIZ; /* hold information for the entire quiz */
 
-int do_quiz(QUIZ* quiz); /* displays quiz questions and returns a total */
+int do_quiz(QUIZ* quiz);
 
-void show_prompt(const PROMPT* prompt); /* displays a question prompt */
+void show_prompt(const PROMPT* prompt);
 
-void make_quiz(QUIZ* quiz, FILE* file, const char* delim); /* creates a quiz from a file */
-void make_prompt(PROMPT* prompt, const char* str, const char* delim); /* makes a prompt from a string */
+void init_quiz(QUIZ* quiz, FILE* file, const char* delim);
+void init_prompt(PROMPT* prompt, const char* str, const char* delim);
 
-void free_quiz(QUIZ* quiz); /* frees a quiz made by make_quiz() */
+void close_quiz(QUIZ* quiz);
 
 #endif /* QUIZ_H */

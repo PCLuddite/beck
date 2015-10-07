@@ -35,16 +35,16 @@ typedef enum {
 #define MAX_PATH 256 /* TODO: determine actual max path on linux */
 #endif
 
-void get_suggestion(int total); /* gets a suggested level of depression based on score */
-bool should_begin(void); /* prompts user to begin quiz */
+void get_suggestion(int total);
+bool should_begin(void);
 
-FILE* open_beck(const char* arg0); /* opens beck.txt and returns file stream */
-size_t GetQuizPath(const char* arg0, char* buff, size_t buff_size); /* gets the path of beck.txt */
+FILE* open_beck(const char* arg0);
+size_t GetQuizPath(const char* arg0, char* buff, size_t buff_size);
 
-void* emalloc(size_t count); /* malloc() that prints an error and exits if malloc() fails */
-void* erealloc(void* ptr, size_t count); /* realloc() that prints an error and exits if realloc() fails */
+void* emalloc(size_t count);
+void* erealloc(void* ptr, size_t count);
 
-int get_single(void); /* gets a single character from STDIN, if more than one character is enter, 0 is returned */
+int get_single(void);
 
 #endif /* BECK_H */
 
