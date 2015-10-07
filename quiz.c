@@ -101,7 +101,7 @@ void init_quiz(QUIZ* quiz, FILE* file, const char* delim)
 
     while(fgets(full, ARRSIZE(full), file) != NULL) {
         PROMPT* prompt = (PROMPT*)(prompt_mem + (curr++ * sizeof*prompt)); /* find memory for prompt */
-        make_prompt(prompt, full, delim);
+        init_prompt(prompt, full, delim);
         quiz_add(quiz, prompt);
     }
 }

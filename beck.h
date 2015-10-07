@@ -35,7 +35,9 @@ typedef enum {
 #define MAX_PATH 256 /* TODO: determine actual max path on linux */
 #endif
 
-void get_suggestion(int total);
+#define PROMPT_DELIM "|"
+
+void print_suggestion(int total);
 bool should_begin(void);
 
 FILE* open_beck(const char* arg0);

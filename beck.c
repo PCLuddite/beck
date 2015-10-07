@@ -23,7 +23,7 @@ int main(int argc, char* argv[])
         return 1;
     }
 
-    make_quiz(&quiz, file, PROMPT_DELIM);
+    init_quiz(&quiz, file, PROMPT_DELIM);
 
     fclose(file);
 
@@ -32,7 +32,7 @@ int main(int argc, char* argv[])
     printf("Total: %i\n", total);
     print_suggestion(total);
 
-    free_quiz(&quiz);
+    close_quiz(&quiz);
 
     return 0;
 }
