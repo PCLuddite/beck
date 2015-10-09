@@ -23,7 +23,7 @@ int main(int argc, char* argv[])
         return 1;
     }
 
-    init_quiz(&quiz, file, PROMPT_DELIM);
+    open_quiz(&quiz, file, PROMPT_DELIM);
 
     fclose(file);
 
