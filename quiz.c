@@ -66,7 +66,7 @@ void show_prompt(const PROMPT* prompt)
  */
 void init_quiz(QUIZ* quiz, FILE* file, const char* delim)
 {
-    static const int INITIAL_CAPACITY = 10;
+    static const int INITIAL_CAPACITY = 25;
 
     char full[1024]; /* buffer to hold a line of text */
 
@@ -75,7 +75,7 @@ void init_quiz(QUIZ* quiz, FILE* file, const char* delim)
     quiz->capacity = INITIAL_CAPACITY; /* set initial capacity */
     quiz->count = 0; /* set number of prompts to 0 */
 
-    while(fgets(full, ARRSIZE(full), file) != NULL) {
+    while(fgets(full, sizeof(full), file) != NULL) {
         if (quiz->count == quiz->capacity) { /* time to realloc */
             quiz->capacity *= 2; /* double the capacity */
             quiz->ques = erealloc(quiz->ques, quiz->capacity * sizeof*quiz->ques);
