@@ -81,7 +81,7 @@ void init_quiz(QUIZ* quiz, FILE* file, const char* delim)
     static const int INITIAL_CAPACITY = 25;
 
     char full[1024]; /* buffer to hold a line of text */
-    char* prompt_mem; /* pointer to memory allocated for prompts */
+    PROMPT* prompt_mem; /* pointer to memory allocated for prompts */
     int num_prompts = 0; /* the number of prompts */
     int curr = 0; /* keep track of current prompt  */
 
@@ -92,7 +92,7 @@ void init_quiz(QUIZ* quiz, FILE* file, const char* delim)
 
     fseek(file, SEEK_SET, 0); /* reset the stream */
 
-    prompt_mem = emalloc(num_prompts * sizeof(PROMPT)); /* allocate memory for prompts in a contiguous block */
+    prompt_mem = emalloc(num_prompts * sizeof*prompt_mem); /* allocate memory for prompts in a contiguous block */
 
     /* initialize QUIZ struct */
     quiz->ques = emalloc(INITIAL_CAPACITY * sizeof*(quiz->ques)); /* allocate memory for prompt array */
@@ -100,7 +100,7 @@ void init_quiz(QUIZ* quiz, FILE* file, const char* delim)
     quiz->count = 0;
 
     while(fgets(full, ARRSIZE(full), file) != NULL) {
-        PROMPT* prompt = (PROMPT*)(prompt_mem + (curr++ * sizeof*prompt)); /* find memory for prompt */
+        PROMPT* prompt = &prompt_mem[curr++]; /* find pointer to prompt */
         init_prompt(prompt, full, delim);
         quiz_add(quiz, prompt);
     }
