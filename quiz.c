@@ -2,18 +2,6 @@
 #include "quiz.h"
 
 /*
- * adds a prompt to a QUIZ created by init_quiz
- */
-static void quiz_add(QUIZ* quiz, PROMPT* prompt)
-{
-    if (quiz->count == quiz->capacity) {
-        quiz->capacity *= 2;
-        quiz->ques = erealloc(quiz->ques, quiz->capacity * sizeof*(quiz->ques));
-    }
-    quiz->ques[quiz->count++] = prompt;
-}
-
-/*
  * adds a string to a prompt created by init_prompt
  */
 static void prompt_add(PROMPT* prompt, char* str)
@@ -48,12 +36,12 @@ int do_quiz(QUIZ* quiz)
     while(curr < quiz->count) {
         int choice, charchoice;
         printf("Question %i:\n", (curr + 1));
-        show_prompt(quiz->ques[curr]);
+        show_prompt(&quiz->ques[curr]);
         fputs("Answer: ", stdout);
         charchoice = get_single();
         fputs("\n", stdout);
         choice = charchoice - '0';
-        if (choice >= 0 && choice < quiz->ques[curr]->count) {
+        if (choice >= 0 && choice < quiz->ques[curr].count) {
             ++curr;
             total += choice;
         }
@@ -78,31 +66,21 @@ void show_prompt(const PROMPT* prompt)
  */
 void init_quiz(QUIZ* quiz, FILE* file, const char* delim)
 {
-    static const int INITIAL_CAPACITY = 25;
+    static const int INITIAL_CAPACITY = 10;
 
     char full[1024]; /* buffer to hold a line of text */
-    PROMPT* prompt_mem; /* pointer to memory allocated for prompts */
-    int num_prompts = 0; /* the number of prompts */
-    int curr = 0; /* keep track of current prompt  */
-
-    /* count the lines of the file to determine number of prompts */
-    while(fgets(full, ARRSIZE(full), file) != NULL) {
-        ++num_prompts;
-    }
-
-    fseek(file, SEEK_SET, 0); /* reset the stream */
-
-    prompt_mem = emalloc(num_prompts * sizeof*prompt_mem); /* allocate memory for prompts in a contiguous block */
 
     /* initialize QUIZ struct */
-    quiz->ques = emalloc(INITIAL_CAPACITY * sizeof*(quiz->ques)); /* allocate memory for prompt array */
-    quiz->capacity = INITIAL_CAPACITY;
-    quiz->count = 0;
+    quiz->ques = emalloc(INITIAL_CAPACITY * sizeof*quiz->ques); /* allocate memory for prompts */
+    quiz->capacity = INITIAL_CAPACITY; /* set initial capacity */
+    quiz->count = 0; /* set number of prompts to 0 */
 
     while(fgets(full, ARRSIZE(full), file) != NULL) {
-        PROMPT* prompt = &prompt_mem[curr++]; /* find pointer to prompt */
-        init_prompt(prompt, full, delim);
-        quiz_add(quiz, prompt);
+        if (quiz->count == quiz->capacity) { /* time to realloc */
+            quiz->capacity *= 2; /* double the capacity */
+            quiz->ques = erealloc(quiz->ques, quiz->capacity * sizeof*quiz->ques);
+        }
+        init_prompt(&quiz->ques[quiz->count++], full, delim); /* initialize the prompt and increment the count  */
     }
 }
 
@@ -124,7 +102,7 @@ void init_prompt(PROMPT* prompt, const char* str, const char* delim)
     /* initialize the PROMPT struct */
     prompt->count = 0;
     prompt->capacity = INITIAL_CAPACITY;
-    prompt->options = emalloc(INITIAL_CAPACITY * sizeof*(prompt->options)); /* allocate memory for tokenized options array */
+    prompt->options = emalloc(INITIAL_CAPACITY * sizeof*prompt->options); /* allocate memory for tokenized options array */
 
     /* tokenize the prompt string */
     opt = strtok(promptstr, delim);
@@ -139,10 +117,9 @@ void init_prompt(PROMPT* prompt, const char* str, const char* delim)
  */
 void close_quiz(QUIZ* quiz)
 {
-    size_t i = 0;
-    for(; i < quiz->count; ++i) {
-        free(quiz->ques[i]->options);
+    size_t i;
+    for(i = 0; i < quiz->count; ++i) {
+        free(quiz->ques[i].options);
     }
-    free(quiz->ques[0]); /* memory for prompt was allocated contiguously, only need to free the start */
     free(quiz->ques);
 }

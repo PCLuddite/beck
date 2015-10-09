@@ -16,7 +16,7 @@ typedef struct {
 typedef struct {
     size_t count;
     size_t capacity;
-    PROMPT** ques;
+    PROMPT* ques;
 } QUIZ; /* hold information for the entire quiz */
 
 int do_quiz(QUIZ* quiz);
