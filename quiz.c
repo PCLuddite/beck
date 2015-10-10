@@ -45,7 +45,7 @@ int do_quiz(QUIZ* quiz)
             ++curr;
             total += choice;
         }
-    }
+    } 
     return total;
 }
 
@@ -115,7 +115,7 @@ void init_prompt(PROMPT* prompt, const char* str, const char* delim)
 /*
  * releases all resources held by a QUIZ and all its prompts
  */
-void close_quiz(QUIZ* quiz)
+void fini_quiz(QUIZ* quiz)
 {
     size_t i;
     for(i = 0; i < quiz->count; ++i) {

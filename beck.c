@@ -23,7 +23,7 @@ int main(int argc, char* argv[])
         return 1;
     }
 
-    open_quiz(&quiz, file, PROMPT_DELIM);
+    init_quiz(&quiz, file, PROMPT_DELIM);
 
     fclose(file);
 
@@ -32,20 +32,9 @@ int main(int argc, char* argv[])
     printf("Total: %i\n", total);
     print_suggestion(total);
 
-    close_quiz(&quiz);
+    fini_quiz(&quiz);
 
     return 0;
-}
-
-/*
- * opens "beck.txt" for reading and returns the file pointer
- * this function expects argv[0] which it may or may not use
- */
-FILE* open_beck(const char* arg0)
-{
-    char path[MAX_PATH];
-    GetQuizPath(arg0, path, MAX_PATH);
-    return fopen(path, "r");
 }
 
 /*
@@ -120,6 +109,84 @@ int get_single(void)
 }
 
 /*
+ * opens "beck.txt" for reading and returns the file pointer
+ * this function expects argv[0] which it may or may not use
+ */
+FILE* open_beck(const char* arg0)
+{
+    char filename[] = "beck.txt";
+    char path[MAX_PATH];
+    GetResourcePath(filename, sizeof(filename), path, sizeof(path), arg0);
+    return fopen(path, "r");
+}
+
+/*
+ * opens "history.txt" for writing and returns the file pointer
+ * this function expects argv[0] which it may or may not use
+ */
+FILE* open_log(const char* arg0)
+{
+    char filename[] = "history.txt";
+    char path[MAX_PATH];
+    GetResourcePath(filename, sizeof(filename), path, sizeof(path), arg0);
+    return fopen(path, "a");
+}
+
+/*
+ * gets the path of a resource located in the same directory as the executable
+ */
+size_t GetResourcePath(const char* filename, size_t name_size, char* buff, size_t buff_size, const char* arg0)
+{
+    size_t len = GetExecPath(arg0, buff, buff_size); /* get executable path */
+
+    if (len + name_size < buff_size) {
+         buff[len++] = SEPARATOR[0];
+         memcpy(&buff[len], filename, name_size); /* copy filename to buffer */
+         return len + name_size - 1; /* return the length of the buffer */
+    }
+    else {
+         return len; /* buffer is not large enough to copy file name */
+    }
+}
+
+/*
+ * gets the path of the current executable
+ */
+size_t GetExecPath(const char* arg0, char* buff, size_t buff_size)
+{
+	char* temp_path = emalloc(buff_size);
+#ifdef _WIN32
+	/* if windows, define things in terms of DWORD */
+	DWORD size;
+	DWORD index;
+	size = GetModuleFileNameA(NULL, temp_path, buff_size);
+#elif defined __linux__
+	ssize_t size;
+	ssize_t index;
+	size = readlink("/proc/self/exe", temp_path, buff_size); /* hopefully it's a linux version that supports this */
+#else
+	size_t size;
+	size_t index;
+	strcpy(temp_path, arg0); /* hope that the path is in arg0 */
+	size = strlen(temp_path);
+#endif
+
+	for(index = size - 1; index > 0; --index) { /* go backwards until we reach a directory separator */
+		if (temp_path[index] == SEPARATOR[0]) {
+	                temp_path[index] = '\0'; /* set where we want the string to end (at the separator) */
+			strcpy(buff, temp_path); /* copy the temp path to the buff */
+			free(temp_path);
+			return strlen(buff); /* return path length */
+		}
+	}
+
+	strcpy(buff, ".");
+
+	free(temp_path);
+	return strlen(buff); /* return path length */
+}
+
+/*
  * realloc() that exits on failure
  */
 void* erealloc(void* ptr, size_t count)
@@ -143,46 +210,4 @@ void* emalloc(size_t count)
         exit(1);
     }
     return ptr;
-}
-
-/*
- * stores the path to beck.txt in buff, returns size of path
- */
-size_t GetQuizPath(const char* arg0, char* buff, size_t buff_size)
-{
-	char* temp_path = emalloc(buff_size);
-
-#ifdef _WIN32
-	/* if windows, define things in terms of DWORD */
-	DWORD size;
-	DWORD index;
-	size = GetModuleFileNameA(NULL, temp_path, buff_size);
-#elif defined __linux__
-	ssize_t size;
-	ssize_t index;
-	size = readlink("/proc/self/exe", temp_path, buff_size); /* hopefully it's a linux version that supports this */
-#else
-	size_t size;
-	size_t index;
-	strcpy(temp_path, arg0); /* hope that the path is in arg0 */
-	size = strlen(temp_path);
-#endif
-
-
-	for(index = size - 1; index > 0; --index) { /* go backwards until we reach a directory separator */
-		if (temp_path[index] == SEPARATOR[0]) {
-	        temp_path[index + 1] = '\0'; /* set where we want the string to end (one after the separator) */
-			strcpy(buff, temp_path); /* copy the temp path to the buff */
-			strcat(buff, "beck.txt"); /* append the file we're looking for */
-			free(temp_path);
-			return strlen(buff); /* return path length */
-		}
-	}
-
-	strcpy(buff, ".");
-	strcat(buff, SEPARATOR);
-	strcat(buff, "beck.txt"); /* fail safe, hopefully it's in the startup path */
-
-	free(temp_path);
-	return strlen(buff); /* return path length */
 }

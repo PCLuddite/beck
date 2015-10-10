@@ -37,16 +37,18 @@ typedef enum {
 
 #define PROMPT_DELIM "|"
 
+int get_single(void);
+
 void print_suggestion(int total);
 bool should_begin(void);
 
 FILE* open_beck(const char* arg0);
-size_t GetQuizPath(const char* arg0, char* buff, size_t buff_size);
+FILE* open_log(const char* arg0);
+size_t GetResourcePath(const char* filename, size_t name_size, char* buff, size_t buff_size, const char* arg0);
+size_t GetExecPath(const char* arg0, char* buff, size_t buff_size);
 
 void* emalloc(size_t count);
 void* erealloc(void* ptr, size_t count);
-
-int get_single(void);
 
 #endif /* BECK_H */
 

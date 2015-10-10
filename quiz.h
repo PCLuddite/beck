@@ -21,9 +21,9 @@ int do_quiz(QUIZ* quiz);
 
 void show_prompt(const PROMPT* prompt);
 
-void open_quiz(QUIZ* quiz, FILE* file, const char* delim);
+void init_quiz(QUIZ* quiz, FILE* file, const char* delim);
 void init_prompt(PROMPT* prompt, const char* str, const char* delim);
 
-void close_quiz(QUIZ* quiz);
+void fini_quiz(QUIZ* quiz);
 
 #endif /* QUIZ_H */
