@@ -47,6 +47,8 @@ FILE* open_log(const char* arg0);
 size_t GetResourcePath(const char* filename, size_t name_size, char* buff, size_t buff_size, const char* arg0);
 size_t GetExecPath(const char* arg0, char* buff, size_t buff_size);
 
+void exit_error(const char* msg);
+
 void* emalloc(size_t count);
 void* erealloc(void* ptr, size_t count);
 

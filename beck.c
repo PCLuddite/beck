@@ -14,13 +14,12 @@ int main(int argc, char* argv[])
 #endif
 
     if (!should_begin()) {
-        return 0;
+        goto cleanup;
     }
 
     file = open_beck(argv[0]);
     if (file == NULL) {
-        puts("unable to open beck.txt");
-        return 1;
+        exit_error("unable to open beck.txt");
     }
 
     init_quiz(&quiz, file, PROMPT_DELIM);
@@ -33,8 +32,8 @@ int main(int argc, char* argv[])
     print_suggestion(total);
 
     fini_quiz(&quiz);
-
-    return 0;
+cleanup:
+    return EXIT_SUCCESS;
 }
 
 /*
@@ -53,9 +52,10 @@ bool should_begin(void)
         fputs("Continue? [Y/N] ", stdout);
         yn = toupper(get_single());
         fputs("\n", stdout);
-        if (yn == 'N') {
+
+        if (yn == 'N')
             return false;
-        }
+
     } while (yn != 'Y');
     return true;
 }
@@ -97,9 +97,8 @@ int get_single(void)
     int count = 0;
     int c = getchar();
 
-    if (c == '\n') {
+    if (c == '\n')
         return c;
-    }
 
     while(getchar() != '\n') {
         ++count;
@@ -154,36 +153,52 @@ size_t GetResourcePath(const char* filename, size_t name_size, char* buff, size_
  */
 size_t GetExecPath(const char* arg0, char* buff, size_t buff_size)
 {
-	char* temp_path = emalloc(buff_size);
+    char* temp_path = emalloc(buff_size);
 #ifdef _WIN32
-	/* if windows, define things in terms of DWORD */
-	DWORD size;
-	DWORD index;
-	size = GetModuleFileNameA(NULL, temp_path, buff_size);
+    /* if windows, define things in terms of DWORD */
+    DWORD size;
+    DWORD index;
+    size = GetModuleFileNameA(NULL, temp_path, buff_size);
 #elif defined __linux__
-	ssize_t size;
-	ssize_t index;
-	size = readlink("/proc/self/exe", temp_path, buff_size); /* hopefully it's a linux version that supports this */
+    ssize_t size;
+    ssize_t index;
+    size = readlink("/proc/self/exe", temp_path, buff_size); /* hopefully it's a linux version that supports this */
 #else
-	size_t size;
-	size_t index;
-	strcpy(temp_path, arg0); /* hope that the path is in arg0 */
-	size = strlen(temp_path);
+    size_t size;
+    size_t index;
+    strcpy(temp_path, arg0); /* hope that the path is in arg0 */
+    size = strlen(temp_path);
 #endif
 
-	for(index = size - 1; index > 0; --index) { /* go backwards until we reach a directory separator */
-		if (temp_path[index] == SEPARATOR[0]) {
-	                temp_path[index] = '\0'; /* set where we want the string to end (at the separator) */
-			strcpy(buff, temp_path); /* copy the temp path to the buff */
-			free(temp_path);
-			return strlen(buff); /* return path length */
-		}
-	}
+    for(index = size - 1; index > 0; --index) { /* go backwards until we reach a directory separator */
+        if (temp_path[index] == SEPARATOR[0]) {
+            temp_path[index] = '\0'; /* set where we want the string to end (at the separator) */
+            if (index > buff_size)
+                goto overflow;
+            strcpy(buff, temp_path); /* copy the temp path to the buff */
+            goto cleanup;
+        }
+    }
 
-	strcpy(buff, ".");
+    if (buff_size < 2)
+        goto overflow;
 
-	free(temp_path);
-	return strlen(buff); /* return path length */
+    strcpy(buff, ".");
+    goto cleanup;
+overflow:
+    exit_error("unable to copy executable directory path, buffer is too small");
+cleanup:
+    free(temp_path);
+    return strlen(buff); /* return path length */
+}
+
+/*
+ * prints an error message then exits with EXIT_FAILURE
+ */
+void exit_error(const char* msg)
+{
+    printf("error: %s\n", msg);
+    exit(EXIT_FAILURE);
 }
 
 /*
@@ -193,8 +208,7 @@ void* erealloc(void* ptr, size_t count)
 {
     void* newptr = realloc(ptr, count);
     if (newptr == NULL) {
-        puts("Call to realloc() failed");
-        exit(1);
+        exit_error("call to realloc() failed");
     }
     return newptr;
 }
@@ -204,10 +218,9 @@ void* erealloc(void* ptr, size_t count)
  */
 void* emalloc(size_t count)
 {
-    void* ptr = malloc(count);
-    if (ptr == NULL) {
-        puts("Call to malloc() failed");
-        exit(1);
+    void* newptr = malloc(count);
+    if (newptr == NULL) {
+        exit_error("call to malloc() failed");
     }
-    return ptr;
+    return newptr;
 }
