@@ -34,13 +34,12 @@ int do_quiz(QUIZ* quiz)
     int curr  = 0,
         total = 0;
     while(curr < quiz->count) {
-        int choice, charchoice;
+        int choice;
         printf("Question %i:\n", (curr + 1));
         show_prompt(&quiz->ques[curr]);
         fputs("Answer: ", stdout);
-        charchoice = get_single();
+        choice = get_single() - '0';
         fputs("\n", stdout);
-        choice = charchoice - '0';
         if (choice >= 0 && choice < quiz->ques[curr].count) {
             ++curr;
             total += choice;
@@ -68,14 +67,14 @@ void init_quiz(QUIZ* quiz, FILE* file, const char* delim)
 {
     static const int INITIAL_CAPACITY = 25;
 
-    char full[1024]; /* buffer to hold a line of text */
+    char full[1024]; /* maximum size of prompt is 1kb */
 
     /* initialize QUIZ struct */
-    quiz->ques = emalloc(INITIAL_CAPACITY * sizeof*quiz->ques); /* allocate memory for prompts */
-    quiz->capacity = INITIAL_CAPACITY; /* set initial capacity */
     quiz->count = 0; /* set number of prompts to 0 */
+    quiz->capacity = INITIAL_CAPACITY; /* set initial capacity */
+    quiz->ques = emalloc(quiz->capacity * sizeof*quiz->ques); /* allocate memory for prompts */
 
-    while(fgets(full, sizeof(full), file) != NULL) {
+    while(fgets(full, sizeof full, file) != NULL) {
         if (quiz->count == quiz->capacity) { /* time to realloc */
             quiz->capacity *= 2; /* double the capacity */
             quiz->ques = erealloc(quiz->ques, quiz->capacity * sizeof*quiz->ques);
@@ -94,7 +93,10 @@ void init_prompt(PROMPT* prompt, const char* str, const char* delim)
 
     char* opt;
     size_t count = find_end(str); /* find the end of the string */
-    char* promptstr = emalloc((count + 1) * sizeof*promptstr); /* allocate memory for the string to tokenize */
+    
+    /* allocate memory for the string to tokenize
+     * length multiplied by size of type for consistancy, will most likely be optimized by compiler */
+    char* promptstr = emalloc((count + 1) * sizeof*promptstr);
 
     strncpy(promptstr, str, count); /* copy the string to be tokenized string */
     promptstr[count] = '\0';
@@ -102,11 +104,11 @@ void init_prompt(PROMPT* prompt, const char* str, const char* delim)
     /* initialize the PROMPT struct */
     prompt->count = 0;
     prompt->capacity = INITIAL_CAPACITY;
-    prompt->options = emalloc(INITIAL_CAPACITY * sizeof*prompt->options); /* allocate memory for tokenized options array */
+    prompt->options = emalloc(prompt->capacity * sizeof*prompt->options); /* allocate memory for tokenized options array */
 
     /* tokenize the prompt string */
     opt = strtok(promptstr, delim);
-    while(opt != NULL){
+    while(opt != NULL) {
         prompt_add(prompt, opt);
         opt = strtok(NULL, delim);
     }
@@ -119,6 +121,7 @@ void fini_quiz(QUIZ* quiz)
 {
     size_t i;
     for(i = 0; i < quiz->count; ++i) {
+        free(quiz->ques[i].options[0]);
         free(quiz->ques[i].options);
     }
     free(quiz->ques);

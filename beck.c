@@ -115,7 +115,7 @@ FILE* open_beck(const char* arg0)
 {
     char filename[] = "beck.txt";
     char path[MAX_PATH];
-    GetResourcePath(filename, sizeof(filename), path, sizeof(path), arg0);
+    GetResourcePath(filename, sizeof filename, path, sizeof path, arg0);
     return fopen(path, "r");
 }
 
@@ -127,7 +127,7 @@ FILE* open_log(const char* arg0)
 {
     char filename[] = "history.txt";
     char path[MAX_PATH];
-    GetResourcePath(filename, sizeof(filename), path, sizeof(path), arg0);
+    GetResourcePath(filename, sizeof filename, path, sizeof path, arg0);
     return fopen(path, "a");
 }
 
@@ -138,14 +138,17 @@ size_t GetResourcePath(const char* filename, size_t name_size, char* buff, size_
 {
     size_t len = GetExecPath(arg0, buff, buff_size); /* get executable path */
 
-    if (len + name_size < buff_size) {
-         buff[len++] = SEPARATOR[0];
-         memcpy(&buff[len], filename, name_size); /* copy filename to buffer */
-         return len + name_size - 1; /* return the length of the buffer */
+    if (len + name_size + 1 > buff_size) {
+        char error_format[] = "buffer is not large enough to hold the full path of resource '%s'";
+        char error_msg[MAX_PATH + sizeof error_format];
+        sprintf(error_msg, error_format, filename);
+        exit_error(error_msg);
     }
-    else {
-         return len; /* buffer is not large enough to copy file name */
-    }
+
+    buff[len++] = SEPARATOR[0];
+    memcpy(&buff[len], filename, name_size); /* copy filename to buffer */
+
+    return len + name_size + 1; /* return the length of the file path */
 }
 
 /*
@@ -186,7 +189,7 @@ size_t GetExecPath(const char* arg0, char* buff, size_t buff_size)
     strcpy(buff, ".");
     goto cleanup;
 overflow:
-    exit_error("unable to copy executable directory path, buffer is too small");
+    exit_error("buffer is not large enough to hold executable directory path");
 cleanup:
     free(temp_path);
     return strlen(buff); /* return path length */
