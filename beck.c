@@ -13,9 +13,8 @@ int main(int argc, char* argv[])
     SetConsoleTextAttribute(hConsole, 0x1f);
 #endif
 
-    if (!should_begin()) {
+    if (!should_begin())
         goto cleanup;
-    }
 
     file = open_beck(argv[0]);
     if (file == NULL) {
@@ -43,11 +42,11 @@ cleanup:
 bool should_begin(void)
 {
     int yn;
-    puts("Beck's Depression Inventory\n");
-    puts("This quiz can help determine your level of depression.");
-    puts("There are 20 questions. Enter the number corresponding to how");
-    puts("you felt over the last two weeks. If you feel in between two answers,");
-    puts("enter the larger number.");
+    fputs("Beck's Depression Inventory\n", stdout);
+    fputs("This quiz can help determine your level of depression.\n", stdout);
+    fputs("There are 20 questions. Enter the number corresponding to how\n", stdout);
+    fputs("you felt over the last two weeks. If you feel in between two answers,\n"), stdout;
+    fputs("enter the larger number.\n");
     do {
         fputs("Continue? [Y/N] ", stdout);
         yn = toupper(get_single());
@@ -100,9 +99,8 @@ int get_single(void)
     if (c == '\n')
         return c;
 
-    while(getchar() != '\n') {
+    while(getchar() != '\n')
         ++count;
-    }
 
     return count == 0 ? c : 0;
 }
@@ -210,9 +208,8 @@ void exit_error(const char* msg)
 void* erealloc(void* ptr, size_t count)
 {
     void* newptr = realloc(ptr, count);
-    if (newptr == NULL) {
+    if (newptr == NULL)
         exit_error("call to realloc() failed");
-    }
     return newptr;
 }
 
@@ -222,8 +219,7 @@ void* erealloc(void* ptr, size_t count)
 void* emalloc(size_t count)
 {
     void* newptr = malloc(count);
-    if (newptr == NULL) {
+    if (newptr == NULL)
         exit_error("call to malloc() failed");
-    }
     return newptr;
 }
