@@ -45,8 +45,8 @@ bool should_begin(void)
     fputs("Beck's Depression Inventory\n", stdout);
     fputs("This quiz can help determine your level of depression.\n", stdout);
     fputs("There are 20 questions. Enter the number corresponding to how\n", stdout);
-    fputs("you felt over the last two weeks. If you feel in between two answers,\n"), stdout;
-    fputs("enter the larger number.\n");
+    fputs("you felt over the last two weeks. If you feel in between two answers,\n", stdout);
+    fputs("enter the larger number.\n", stdout);
     do {
         fputs("Continue? [Y/N] ", stdout);
         yn = toupper(get_single());
